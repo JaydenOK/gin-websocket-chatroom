@@ -15,9 +15,11 @@ import (
 	"sync"
 )
 
+//websocket 请求处理处置方法
 type DisposeFunc func(client *Client, seq string, message []byte) (code uint32, msg string, data interface{})
 
 var (
+	//保存请求-处理方法
 	handlers        = make(map[string]DisposeFunc)
 	handlersRWMutex sync.RWMutex
 )
@@ -31,6 +33,7 @@ func Register(key string, value DisposeFunc) {
 	return
 }
 
+//获取Register注册绑定的handles
 func getHandlers(key string) (value DisposeFunc, ok bool) {
 	handlersRWMutex.RLock()
 	defer handlersRWMutex.RUnlock()
@@ -52,7 +55,7 @@ func ProcessData(client *Client, message []byte) {
 	}()
 
 	request := &models.Request{}
-
+	//解析发送的json数据到request结构体
 	err := json.Unmarshal(message, request)
 	if err != nil {
 		fmt.Println("处理数据 json Unmarshal", err)
@@ -69,8 +72,8 @@ func ProcessData(client *Client, message []byte) {
 		return
 	}
 
-	seq := request.Seq
-	cmd := request.Cmd
+	seq := request.Seq //自定义此次发送的队列号，防止重复处理
+	cmd := request.Cmd //自定义操作参数，区分不同操作
 
 	var (
 		code uint32
@@ -81,7 +84,7 @@ func ProcessData(client *Client, message []byte) {
 	// request
 	fmt.Println("acc_request", cmd, client.Addr)
 
-	// 采用 map 注册的方式
+	// 采用 map 注册的方式，value处理方法
 	if value, ok := getHandlers(cmd); ok {
 		code, msg, data = value(client, seq, requestData)
 	} else {
@@ -99,7 +102,7 @@ func ProcessData(client *Client, message []byte) {
 
 		return
 	}
-
+	//响应信息，返回给自己的client
 	client.SendMsg(headByte)
 
 	fmt.Println("acc_response send", client.Addr, client.AppId, client.UserId, "cmd", cmd, "code", code)

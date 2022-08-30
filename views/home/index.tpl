@@ -364,17 +364,18 @@
         ws.onopen = function(evt) {
             console.log("Connection open ...");
 
-            // // 连接以后
-            // person = prompt("请输入你的名字", "hello-" + currentTime());
-            // if (person != null) {
-            //     console.log("用户准备登陆:" + person);
-            //     ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":'+ appId +'}}');
-            // }
+            // // 连接以后，手动输入名称
+            person = prompt("请输入你的名字", "hello-" + currentTime());
+            if (person != null) {
+                console.log("用户准备登陆:" + person);
+                ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":101}}');
+            }
 
-           person =  getName();
-           // person = randomNumber(10000, 99999)
-            console.log("用户准备登陆:" + person);
-            ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":'+ appId +'}}');
+            //自动创建用户名
+            // person = randomNumber(10000, 99999)
+            // console.log("用户准备登陆:" + person);
+            // ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":101}}');
+
 
             // 定时心跳
             setInterval(heartbeat, 30 * 1000)

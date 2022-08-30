@@ -92,10 +92,10 @@ func SendMessage(c *gin.Context) {
 // 给全员发送消息
 func SendMessageAll(c *gin.Context) {
 	// 获取参数
-	appIdStr := c.PostForm("appId")
-	userId := c.PostForm("userId")
-	msgId := c.PostForm("msgId")
-	message := c.PostForm("message")
+	appIdStr := c.PostForm("appId")  //当前应用id
+	userId := c.PostForm("userId")   //发送人userId
+	msgId := c.PostForm("msgId")     //消息Id，随机字符串，用于防止点击重复发送消息，redis
+	message := c.PostForm("message") //消息
 	appIdUint64, _ := strconv.ParseInt(appIdStr, 10, 32)
 	appId := uint32(appIdUint64)
 

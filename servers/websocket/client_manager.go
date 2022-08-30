@@ -20,7 +20,7 @@ import (
 type ClientManager struct {
 	Clients     map[*Client]bool   // 全部的连接
 	ClientsLock sync.RWMutex       // 读写锁
-	Users       map[string]*Client // 登录的用户 // appId+uuid
+	Users       map[string]*Client // 登录的用户 // appId_uuid
 	UserLock    sync.RWMutex       // 读写锁
 	Register    chan *Client       // 连接连接处理
 	Login       chan *login        // 用户登录处理
@@ -378,7 +378,7 @@ func GetUserList(appId uint32) (userList []string) {
 // 全员广播
 func AllSendMessages(appId uint32, userId string, data string) {
 	fmt.Println("全员广播", appId, userId, data)
-
+	//获取发送者的socket，忽略发自己
 	ignoreClient := clientManager.GetUserClient(appId, userId)
 	clientManager.sendAppIdAll([]byte(data), appId, ignoreClient)
 }

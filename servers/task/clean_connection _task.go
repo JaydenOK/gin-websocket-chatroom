@@ -15,6 +15,7 @@ import (
 )
 
 func Init() {
+	//注册定时清理连接任务
 	Timer(3*time.Second, 30*time.Second, cleanConnection, "", nil, nil)
 
 }

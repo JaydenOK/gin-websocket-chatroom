@@ -90,7 +90,7 @@ func GetServerAll(currentTime uint64) (servers []*models.Server, err error) {
 
 		return
 	}
-
+	//保存键为Ip:port信息，值为时间戳信息
 	for key, value := range serverMap {
 		valueUint64, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {

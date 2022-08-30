@@ -25,7 +25,7 @@ type login struct {
 	Client *Client
 }
 
-// GetKey 获取 key 
+// GetKey 获取 key
 func (l *login) GetKey() (key string) {
 	key = GetUserKey(l.AppId, l.UserId)
 
@@ -36,7 +36,7 @@ func (l *login) GetKey() (key string) {
 type Client struct {
 	Addr          string          // 客户端地址
 	Socket        *websocket.Conn // 用户连接
-	Send          chan []byte     // 待发送的数据
+	Send          chan []byte     // 待发送的数据，（广播或其它人发来的消息）
 	AppId         uint32          // 登录的平台Id app/web/ios
 	UserId        string          // 用户Id，用户登录以后才有
 	FirstTime     uint64          // 首次连接事件
@@ -64,7 +64,7 @@ func (c *Client) GetKey() (key string) {
 	return
 }
 
-// 读取客户端数据
+// 读用户端websocket数据，（用户端还可以通过http发送到服务端，服务端处理，然后通过websocket广播到连接的其它用户端）
 func (c *Client) read() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -78,6 +78,7 @@ func (c *Client) read() {
 	}()
 
 	for {
+		//阻塞，读取websocket发送的数据
 		_, message, err := c.Socket.ReadMessage()
 		if err != nil {
 			fmt.Println("读取客户端数据 错误", c.Addr, err)
@@ -91,7 +92,7 @@ func (c *Client) read() {
 	}
 }
 
-// 向客户端写数据
+// 向用户端websocket写数据
 func (c *Client) write() {
 	defer func() {
 		if r := recover(); r != nil {

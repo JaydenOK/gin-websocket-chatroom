@@ -28,26 +28,36 @@ func main() {
 
 	initFile()
 
+	//实例化 redis.Client
 	initRedis()
 
 	router := gin.Default()
-	// 初始化路由
+	// 初始化http模板views及路由
 	routers.Init(router)
+
+	//绑定websocket登录，心跳，ping函数到handlers属性-map[string]DisposeFunc
 	routers.WebsocketInit()
 
-	// 定时任务
+	// 定时任务（注册定时清理连接任务）
 	task.Init()
 
-	// 服务注册
+	// 实例化 server_model （服务ip:port redis配置）
 	task.ServerInit()
 
+	// 绑定/acc路由事件（当有websocket连接时，给它分别启动读、写socket协程，具体操作通过socket传送的自定义参数cmd确定，如login，heartbeat）
+	// 启动ClientManager协程事件，监听注册，发送数据事件
+	// 启动websocket服务
 	go websocket.StartWebSocket()
+
 	// grpc
 	go grpcserver.Init()
 
+	//访问页面
 	go open()
 
 	httpPort := viper.GetString("app.httpPort")
+
+	//启动http服务
 	http.ListenAndServe(":"+httpPort, router)
 
 }

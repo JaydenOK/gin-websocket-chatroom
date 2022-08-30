@@ -78,16 +78,17 @@ func StartWebSocket() {
 	rpcPort := viper.GetString("app.rpcPort")
 
 	serverPort = rpcPort
-
+	//注册ws地址路由，连接时，启动读、写协程，通道阻塞
 	http.HandleFunc("/acc", wsPage)
 
-	// 添加处理程序
+	// 添加处理程序，启动管道监听注册，连接，广播事件
 	go clientManager.start()
 	fmt.Println("WebSocket 启动程序成功", serverIp, serverPort)
 
 	http.ListenAndServe(":"+webSocketPort, nil)
 }
 
+//websocket客户端连接
 func wsPage(w http.ResponseWriter, req *http.Request) {
 
 	// 升级协议
@@ -104,9 +105,11 @@ func wsPage(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Println("webSocket 建立连接:", conn.RemoteAddr().String())
 
+	//初始化websocket用户，注入连接*websocket.Conn
 	currentTime := uint64(time.Now().Unix())
 	client := NewClient(conn.RemoteAddr().String(), conn, currentTime)
 
+	//当有一个websocket连接时，给它启动读写协程
 	go client.read()
 	go client.write()
 
